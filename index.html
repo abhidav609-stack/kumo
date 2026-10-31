@@ -119,14 +119,18 @@ dialog{background:var(--s);color:var(--t);border:1px solid var(--s2);border-radi
 .sl .sl-poster{display:none}
 @media (min-width:700px){.sl .sl-poster{display:block;position:absolute;right:18%;top:50%;transform:translateY(-50%);height:78%;aspect-ratio:2/3;object-fit:cover;border-radius:14px;box-shadow:0 18px 40px -12px rgba(0,0,0,.8);z-index:1}}
 </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#11101a">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>#kt strong{min-width:28px;text-align:center;font-size:20px}#kt .btn{padding:8px 16px}</style>
 </head>
 <body>
 <header>
   <a class="logo" href="#home">ku<b>mo</b></a>
-  <nav><a href="#home" id="n-home">Home</a><a href="#browse" id="n-browse">Browse</a><a href="#mylist" id="n-mylist">My list</a><a href="#history" id="n-history">History</a></nav><button class="btn ghost" id="acct">Sign in</button>
+  <nav><a href="#home" id="n-home">Home</a><a href="#browse" id="n-browse">Browse</a><a href="#mylist" id="n-mylist">My list</a><a href="#history" id="n-history">History</a><a href="#stats" id="n-stats">Stats</a></nav><button class="btn ghost" id="acct">Sign in</button>
 </header>
 <main id="app"></main>
-<footer>Anime metadata and artwork provided by AniList. Kumo is independent and not affiliated with AniList. Add only video sources you own or are licensed to stream.</footer>
+<footer>Anime metadata and artwork provided by AniList. Kumo does not host or stream any video; it links to official services. Not affiliated with AniList.</footer>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
 <script>
 var T=[
@@ -158,7 +162,7 @@ function home(){
   if(keys.length)document.getElementById("cw").innerHTML=keys.map(function(k){var t=T[k];return t?card(t,c[k].ep,c[k].pos):""}).join("");
   function hero(){var t=h[hi%h.length],el=document.getElementById("hero");if(!el)return;
     el.style.background=bg(t.h,36);
-    el.innerHTML='<div class="glyph">'+t.g+'</div><div class="txt"><h1>'+t.n+'</h1><p>'+t.d+'</p><a class="btn" href="#watch-'+t.i+'-1">▶ Play now</a> <a class="btn ghost" href="#title-'+t.i+'">Details</a></div><div class="dots">'+h.map(function(_,j){return '<button aria-label="Slide '+(j+1)+'" data-i="'+j+'" class="'+(j==hi%h.length?'on':'')+'"></button>'}).join("")+'</div>';
+    el.innerHTML='<div class="glyph">'+t.g+'</div><div class="txt"><h1>'+t.n+'</h1><p>'+t.d+'</p><a class="btn" href="#title-'+t.i+'">Where to watch</a></div><div class="dots">'+h.map(function(_,j){return '<button aria-label="Slide '+(j+1)+'" data-i="'+j+'" class="'+(j==hi%h.length?'on':'')+'"></button>'}).join("")+'</div>';
     el.querySelectorAll(".dots button").forEach(function(b){b.onclick=function(){hi=+b.dataset.i;clearInterval(hv);hero()}})}
   hero();clearInterval(hv);
   if(!matchMedia("(prefers-reduced-motion:reduce)").matches)hv=setInterval(function(){hi++;hero()},6000);
@@ -242,7 +246,7 @@ function sec(h,id){return '<div class="row-h"><h2>'+h+'</h2></div><div class="gr
 function fill(id,a){var e=document.getElementById(id);if(e)e.innerHTML=a.join("")}
 function home(){
  var top=top10(),c=load(),ck=Object.keys(c).filter(function(k){return T[k]}),hs=ls("-h"),ml=ls("-l");
- app.innerHTML='<section class="hs"><div class="hrow" id="hrow">'+top.map(function(t,i){return '<article class="sl'+(t.banner||t.cover?' has-img':'')+'" style="background:'+bg(t.h,36)+'">'+(t.banner||t.cover?'<img class="sl-img'+(t.banner?'':' blur')+'" referrerpolicy="no-referrer" alt="" src="'+eu(t.banner||t.cover)+'">':'')+(!t.banner&&t.cover?'<img class="sl-poster" referrerpolicy="no-referrer" alt="" src="'+eu(t.cover)+'">':'')+'<div class="glyph">'+t.g+'</div><div class="rk">'+(i+1)+'</div><div class="txt"><small>Trending #'+(i+1)+' today</small><h1>'+t.n+'</h1><p>'+t.d+'</p><a class="btn" href="#watch-'+t.i+'-1">▶ Play now</a> <a class="btn ghost" href="#title-'+t.i+'">Details</a></div></article>'}).join("")+'</div><button class="hb" id="hp" aria-label="Previous">‹</button><button class="hb r" id="hn" aria-label="Next">›</button></section>'+
+ app.innerHTML='<section class="hs"><div class="hrow" id="hrow">'+top.map(function(t,i){return '<article class="sl'+(t.banner||t.cover?' has-img':'')+'" style="background:'+bg(t.h,36)+'">'+(t.banner||t.cover?'<img class="sl-img'+(t.banner?'':' blur')+'" referrerpolicy="no-referrer" alt="" src="'+eu(t.banner||t.cover)+'">':'')+(!t.banner&&t.cover?'<img class="sl-poster" referrerpolicy="no-referrer" alt="" src="'+eu(t.cover)+'">':'')+'<div class="glyph">'+t.g+'</div><div class="rk">'+(i+1)+'</div><div class="txt"><small>Trending #'+(i+1)+' today</small><h1>'+t.n+'</h1><p>'+t.d+'</p><a class="btn" href="#title-'+t.i+'">Where to watch</a></div></article>'}).join("")+'</div><button class="hb" id="hp" aria-label="Previous">‹</button><button class="hb r" id="hn" aria-label="Next">›</button></section>'+
  (ck.length?sec("Continue watching","cw"):"")+(hs.length?sec("Recently played","rw"):"")+(ml.length?sec("My list","ml"):"")+
  '<div class="row-h"><h2>Latest anime</h2><div class="tabs" id="tabs"></div></div><div class="grid" id="lat"></div>'+sec("Top 10 trending","trd");
  fill("cw",ck.map(function(k){return card(T[k],c[k].ep,c[k].pos)}));
@@ -324,8 +328,8 @@ addEventListener("hashchange",route);route();
       T=fresh;
       // Preserve local watch history/list by using the new stable AniList IDs as item keys is a future backend step.
       route();
-      announce('<strong>Catalogue updated.</strong> Showing '+fresh.length+' anime from AniList. Metadata and artwork update automatically; video sources still need to be supplied separately.');
-      const footer=document.querySelector('footer');if(footer)footer.textContent='Anime metadata and artwork: AniList API. Kumo is an independent project and is not affiliated with AniList. Video playback requires a source you own or are licensed to stream.';
+      announce('<strong>Catalogue updated.</strong> Showing '+fresh.length+' anime from AniList. Metadata and artwork update automatically.');
+      const footer=document.querySelector('footer');if(footer)footer.textContent='Anime metadata and artwork: AniList API. Kumo is an independent project and is not affiliated with AniList. Kumo does not host any video and links to official streaming services.';
     }catch(err){
       console.warn('Kumo catalogue update failed:',err);
       announce('<strong>Could not update catalogue.</strong> Showing the built-in demo catalogue instead. Check your connection and reload.');
@@ -423,7 +427,7 @@ function favCard(r){
   const img=r.anime_cover?'<img class="kumo-cover" loading="lazy" referrerpolicy="no-referrer" src="'+esc(r.anime_cover)+'" alt="">':'';
   return '<a class="card" href="#" data-aid="'+Number(r.anime_id)+'"><div class="poster">'+img+'</div><h3>'+esc(r.anime_title||'Anime')+'</h3></a>';
 }
-function histCard(r){const t=titleFor(r.anime_id);return t?card(t,r.episode_number,r.progress_seconds):'';}
+function histCard(r){const t=titleFor(r.anime_id);if(!t)return favCard(r);return card(t,r.episode_number,(r.episode_number||0)/(t.e||1)*1440).replace('</small>',' · '+(r.episode_number||0)+'/'+t.e+' watched</small>');}
 
 async function drawPage(kind){
   const my=++token,isList=kind==='mylist',label=isList?'My list':'Watch history';
@@ -562,6 +566,77 @@ window.browse=function(){
     },350);
   };
 };
+})();
+</script>
+<script>
+/* Kumo tracker: where-to-watch links, episode progress, stats page, app install */
+(function(){
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+const db=window.kumoSupabase,app=document.getElementById('app');
+if(!db)return;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function me(){const {data}=await db.auth.getSession();return data.session&&data.session.user;}
+function mk(txt,url,cls){const a=document.createElement('a');a.className='btn'+cls;a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=txt;return a;}
+async function links(t,box){
+  const el=box.querySelector('#kw');
+  const done=(nodes,msg)=>{el.innerHTML='';if(msg){const s=document.createElement('span');s.className='note';s.textContent=msg;el.appendChild(s);}nodes.forEach(n=>el.appendChild(n));};
+  if(!t.anilistId){done([],'Open this anime from the catalogue or Browse to see where it streams.');return;}
+  done([],'Looking up official streaming links…');
+  try{
+    const r=await fetch('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({query:'query($id:Int){Media(id:$id,type:ANIME){siteUrl externalLinks{site url type isDisabled}}}',variables:{id:t.anilistId}})});
+    const j=await r.json();if(!document.body.contains(box))return;
+    const m=j.data.Media,ls=(m.externalLinks||[]).filter(x=>x.type==='STREAMING'&&!x.isDisabled&&/^https?:\/\//.test(x.url));
+    const nodes=ls.map(x=>mk('▶ '+x.site,x.url,''));
+    if(m.siteUrl)nodes.push(mk('AniList page',m.siteUrl,' ghost'));
+    done(nodes,ls.length?'':'No official streaming link is listed for this anime yet.');
+  }catch(e){done([],'Could not load streaming links. Check your connection.');}
+}
+async function progress(t,box){
+  const el=box.querySelector('#kp'),u=await me();
+  if(!u){el.innerHTML='<span class="note">Sign in to track what you watch.</span> <button class="btn" id="kt-in">Sign in</button>';el.querySelector('#kt-in').onclick=()=>window.kumoOpenAccount&&window.kumoOpenAccount();return;}
+  if(!t.anilistId){el.textContent='Tracking is available for titles from the catalogue.';return;}
+  const q=await db.from('watch_history').select('episode_number').eq('user_id',u.id).eq('anime_id',t.anilistId).maybeSingle();
+  let n=(q.data&&q.data.episode_number)||0;
+  const draw=msg=>{el.innerHTML='<button class="btn ghost" data-d="-1" aria-label="One less">−</button><strong>'+n+'</strong><span class="note">of '+Number(t.e)+' episodes watched</span><button class="btn ghost" data-d="1" aria-label="One more">+</button><button class="btn" data-all="1">Mark all watched</button>'+(msg?'<span class="source-status error">'+msg+'</span>':'');};
+  async function set(v){
+    v=Math.max(0,v);el.querySelectorAll('button').forEach(b=>b.disabled=true);
+    try{
+      const r=v===0?await db.from('watch_history').delete().eq('user_id',u.id).eq('anime_id',t.anilistId)
+        :await db.from('watch_history').upsert({user_id:u.id,anime_id:t.anilistId,anime_title:t.n,anime_cover:t.cover||null,episode_number:v,progress_seconds:0,duration_seconds:0,updated_at:new Date().toISOString()},{onConflict:'user_id,anime_id'});
+      if(r.error)throw r.error;n=v;draw();
+    }catch(e){draw('Could not save. Try again.');}
+  }
+  el.onclick=e=>{const b=e.target.closest('button');if(!b||b.disabled)return;if(b.dataset.all)set(Number(t.e));else if(b.dataset.d)set(n+Number(b.dataset.d));};
+  draw();
+}
+const oldTitle=window.title;
+window.title=function(id){
+  oldTitle(id);
+  const t=(window.T||[])[id],ttl=app.querySelector('.title');if(!t||!ttl)return;
+  ttl.querySelectorAll('a.btn[href^="#watch"]').forEach(x=>x.remove());
+  app.querySelectorAll('.eps,.row-h').forEach(x=>x.remove());
+  const box=document.createElement('section');box.id='kt';
+  box.innerHTML='<div class="row-h"><h2>Where to watch</h2></div><div class="source-actions" id="kw"></div><div class="row-h"><h2>Your progress</h2></div><div class="source-actions" id="kp"></div>';
+  ttl.after(box);links(t,box);progress(t,box);
+};
+function card2(r){return '<a class="card" href="#" data-aid="'+Number(r.anime_id)+'"><div class="poster">'+(r.anime_cover?'<img class="kumo-cover" loading="lazy" referrerpolicy="no-referrer" src="'+esc(r.anime_cover)+'" alt="">':'')+'</div><h3>'+esc(r.anime_title||'Anime')+'</h3><small>'+Number(r.episode_number||0)+' episodes watched</small></a>';}
+async function stats(){
+  if(typeof hv!=='undefined')clearInterval(hv);
+  const u=await me();if(location.hash!=='#stats')return;
+  if(!u){app.innerHTML='<div class="row-h" style="margin-top:24px"><h2>Your stats</h2></div><p class="empty">Sign in with Google to see your stats.</p><button class="btn" id="st-in">Sign in</button>';document.getElementById('st-in').onclick=()=>window.kumoOpenAccount&&window.kumoOpenAccount();return;}
+  app.innerHTML='<p class="empty">Loading…</p>';
+  const [h,f]=await Promise.all([db.from('watch_history').select('*').eq('user_id',u.id).order('updated_at',{ascending:false}),db.from('favourites').select('id',{count:'exact',head:true}).eq('user_id',u.id)]);
+  if(location.hash!=='#stats')return;
+  if(h.error){app.innerHTML='<p class="empty">Could not load your stats.</p>';return;}
+  const rows=h.data||[],eps=rows.reduce((a,r)=>a+(r.episode_number||0),0);
+  const tile=(n,l)=>'<div class="source-panel"><strong style="font-size:34px">'+n+'</strong><span class="note">'+l+'</span></div>';
+  app.innerHTML='<div class="row-h" style="margin-top:24px"><h2>Your stats</h2></div><div class="grid">'+tile(rows.length,'Anime tracked')+tile(eps,'Episodes watched')+tile(f.count||0,'In My list')+tile(Math.round(eps*24/60),'Hours (estimate)')+'</div>'+(rows.length?'<div class="row-h"><h2>Recently updated</h2></div><div class="grid">'+rows.slice(0,12).map(card2).join('')+'</div>':'<p class="empty">Nothing tracked yet. Open an anime and use Your progress.</p>');
+}
+function nav(){const n=document.getElementById('n-stats');if(n)n.className=location.hash==='#stats'?'on':'';}
+const oldRoute=window.route;
+window.route=function(){oldRoute();nav();if(location.hash==='#stats')setTimeout(stats,0);};
+addEventListener('hashchange',()=>{nav();if(location.hash==='#stats')setTimeout(stats,0);});
+nav();if(location.hash==='#stats')stats();
 })();
 </script>
 </body>
