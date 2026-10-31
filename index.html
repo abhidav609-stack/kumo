@@ -137,7 +137,7 @@ var app=document.getElementById("app"),iv=null,q="",gf="All",sf="All",tab="all",
 function bg(h,a){return "linear-gradient(145deg,hsl("+h+",70%,"+(a||42)+"%),hsl("+(h+50)+",65%,22%))"}
 function poster(t,badge){return '<div class="poster" style="background:'+bg(t.h)+'"><div class="g">'+t.g+'</div>'+(badge||'')+'</div>'}
 function card(t,ep,pos){var p=pos!=null?'<div class="bar2"><i style="width:'+Math.min(100,pos/14.4)+'%"></i></div>':'';
-return '<a class="card" href="#'+(ep?'watch-'+t.i+'-'+ep:'title-'+t.i)+'">'+poster(t,ep?'<span>EP '+ep+'</span>':'<span>'+t.e+' eps</span>')+'<h3>'+t.n+'</h3><small>'+t.gen[0]+' · '+t.y+'</small>'+p+'</a>'}
+return '<a class="card" href="#'+'title-'+t.i+'">'+poster(t,'<span>'+t.e+' eps</span>')+'<h3>'+t.n+'</h3><small>'+t.gen[0]+' · '+t.y+'</small>'+p+'</a>'}
 T.forEach(function(t,i){t.i=i});
 function load(){try{return JSON.parse(localStorage.getItem("kumo")||"{}")}catch(e){return {}}}
 function save(o){try{localStorage.setItem("kumo",JSON.stringify(o))}catch(e){}}
@@ -145,7 +145,7 @@ function home(){
   var h=T.filter(function(t){return t.tr}),c=load(),keys=Object.keys(c);
   app.innerHTML='<section class="hero" id="hero"></section>'+
   (keys.length?'<div class="row-h"><h2>Continue watching</h2></div><div class="grid" id="cw"></div>':'')+
-  '<div class="row-h"><h2>Latest episodes</h2><div class="tabs" id="tabs"></div></div><div class="grid" id="lat"></div>'+
+  '<div class="row-h"><h2>Latest anime</h2><div class="tabs" id="tabs"></div></div><div class="grid" id="lat"></div>'+
   '<div class="row-h"><h2>Trending</h2><a class="btn ghost" href="#browse">See all titles</a></div><div class="grid" id="trd"></div>';
   if(keys.length)document.getElementById("cw").innerHTML=keys.map(function(k){var t=T[k];return t?card(t,c[k].ep,c[k].pos):""}).join("");
   function hero(){var t=h[hi%h.length],el=document.getElementById("hero");if(!el)return;
@@ -172,7 +172,7 @@ function browse(){
   document.getElementById("s").onchange=function(e){sf=e.target.value;f()};f();
 }
 function title(id){var t=T[id];if(!t)return home();
-  app.innerHTML='<div class="title">'+poster(t)+'<div><h1 style="margin:0 0 8px;font-size:36px">'+t.n+'</h1><div class="tags">'+t.gen.concat([t.s,String(t.y)]).map(function(x){return '<span>'+x+'</span>'}).join("")+'</div><p>'+t.d+'</p><a class="btn" href="#watch-'+id+'-1">▶ Watch episode 1</a></div></div><div class="row-h"><h2>Episodes</h2></div><div class="eps">'+epl(t,0)+'</div>';}
+  app.innerHTML='<div class="title">'+poster(t)+'<div><h1 style="margin:0 0 8px;font-size:36px">'+t.n+'</h1><div class="tags">'+t.gen.concat([t.s,String(t.y)]).map(function(x){return '<span>'+x+'</span>'}).join("")+'</div><p>'+t.d+'</p><a class="btn" href="#watch-'+id+'-1">▶ Watch now</a></div></div><div class="row-h"><h2>Episodes</h2></div><div class="eps">'+epl(t,0)+'</div>';}
 function epl(t,cur){var s="";for(var i=1;i<=t.e;i++)s+='<a class="'+(i==cur?'on':'')+'" href="#watch-'+t.i+'-'+i+'">'+i+'</a>';return s}
 function fmt(s){return Math.floor(s/60)+":"+("0"+Math.floor(s%60)).slice(-2)}
 function watch(id,ep){
@@ -235,7 +235,7 @@ function home(){
  var top=top10(),c=load(),ck=Object.keys(c).filter(function(k){return T[k]}),hs=ls("-h"),ml=ls("-l");
  app.innerHTML='<section class="hs"><div class="hrow" id="hrow">'+top.map(function(t,i){return '<article class="sl" style="background:'+bg(t.h,36)+'"><div class="glyph">'+t.g+'</div><div class="rk">'+(i+1)+'</div><div class="txt"><small>Trending #'+(i+1)+' today</small><h1>'+t.n+'</h1><p>'+t.d+'</p><a class="btn" href="#watch-'+t.i+'-1">▶ Play now</a> <a class="btn ghost" href="#title-'+t.i+'">Details</a></div></article>'}).join("")+'</div><button class="hb" id="hp" aria-label="Previous">‹</button><button class="hb r" id="hn" aria-label="Next">›</button></section>'+
  (ck.length?sec("Continue watching","cw"):"")+(hs.length?sec("Recently played","rw"):"")+(ml.length?sec("My list","ml"):"")+
- '<div class="row-h"><h2>Latest episodes</h2><div class="tabs" id="tabs"></div></div><div class="grid" id="lat"></div>'+sec("Top 10 trending","trd");
+ '<div class="row-h"><h2>Latest anime</h2><div class="tabs" id="tabs"></div></div><div class="grid" id="lat"></div>'+sec("Top 10 trending","trd");
  fill("cw",ck.map(function(k){return card(T[k],c[k].ep,c[k].pos)}));
  fill("rw",hs.slice(0,10).map(function(x){return T[x[0]]?card(T[x[0]],x[1]):""}));
  fill("ml",ml.map(function(i){return T[i]?card(T[i]):""}));
