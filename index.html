@@ -377,103 +377,134 @@ addEventListener("hashchange",route);route();
 
 
 <script>
-/* Kumo cloud favourites + grouped cloud history (reliable delegated button handling) */
+/* Kumo: Supabase is the only source for My List. Also handles cloud watch history. */
 (function(){
-  const db=window.kumoSupabase;
-  if(!db)return;
-  const app=document.getElementById('app');
-  async function getUser(){
-    const {data,error}=await db.auth.getSession();
-    if(error){console.warn('Kumo session lookup failed:',error.message);return null;}
-    window.kumoSession=data.session;
-    return data.session?.user||null;
+const db=window.kumoSupabase;
+if(!db)return;
+const app=document.getElementById('app');
+let token=0,cloudDraw=false;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// 1) One-time cleanup: remove ONLY the old browser-only My List keys (history, progress, settings stay)
+try{Object.keys(localStorage).forEach(k=>{if(/^kumo-l($|-)/.test(k))localStorage.removeItem(k);});}catch(e){}
+
+// 2) Old code can no longer read a local list
+const oldLs=window.ls;
+window.ls=function(k){return k==='-l'?[]:oldLs(k);};
+
+// 3) The old local My List page never draws; only the cloud page can
+const oldPg=window.pg;
+window.pg=function(h,a,m,x){if(h==='My list'&&!cloudDraw)return;return oldPg(h,a,m,x);};
+
+async function getUser(){
+  const {data,error}=await db.auth.getSession();
+  if(error){console.warn('Kumo session lookup failed:',error.message);return null;}
+  window.kumoSession=data.session;
+  return data.session?.user||null;
+}
+function titleFor(id){return (window.T||[]).find(x=>Number(x.anilistId)===Number(id));}
+async function getRows(table,user){
+  const order=table==='watch_history'?'updated_at':'created_at';
+  const {data,error}=await db.from(table).select('*').eq('user_id',user.id).order(order,{ascending:false});
+  if(error){console.error('Kumo '+table+' read failed:',error.message);return [];}
+  return data||[];
+}
+// My List cards come straight from the saved row, so they never depend on the catalogue being loaded
+function favCard(r){
+  const img=r.anime_cover?'<img class="kumo-cover" loading="lazy" referrerpolicy="no-referrer" src="'+esc(r.anime_cover)+'" alt="">':'';
+  return '<a class="card" href="#" data-aid="'+Number(r.anime_id)+'"><div class="poster">'+img+'</div><h3>'+esc(r.anime_title||'Anime')+'</h3></a>';
+}
+function histCard(r){const t=titleFor(r.anime_id);return t?card(t,r.episode_number,r.progress_seconds):'';}
+
+async function drawPage(kind){
+  const my=++token,isList=kind==='mylist',label=isList?'My list':'Watch history';
+  const user=await getUser();
+  if(my!==token)return;
+  if(!user){
+    app.innerHTML='<div class="row-h" style="margin-top:24px"><h2>'+label+'</h2></div><p class="empty">Sign in with Google to save and view your '+(isList?'favourites':'watch history')+' across devices.</p><button class="btn" id="cloud-login">Sign in</button>';
+    const l=document.getElementById('cloud-login');if(l)l.onclick=()=>window.kumoOpenAccount&&window.kumoOpenAccount();
+    return;
   }
-  function titleFor(anilistId){return (window.T||[]).find(x=>Number(x.anilistId)===Number(anilistId));}
-  async function getRows(table,user){
-    if(!user)return [];
-    const order=table==='watch_history'?'updated_at':'created_at';
-    const {data,error}=await db.from(table).select('*').eq('user_id',user.id).order(order,{ascending:false});
-    if(error){console.error('Kumo '+table+' read failed:',error.message);return [];}
-    return data||[];
+  app.innerHTML='<p class="empty">Loading…</p>';
+  const rows=await getRows(isList?'favourites':'watch_history',user);
+  if(my!==token||location.hash.slice(1).split('-')[0]!==kind)return;
+  const cards=rows.map(r=>isList?favCard(r):histCard(r)).filter(Boolean);
+  cloudDraw=true;
+  try{pg(label,cards,isList?'Your list is empty. Open an anime and add it to your list.':'No episodes watched yet. Start an episode and your progress will appear here.');}
+  finally{cloudDraw=false;}
+}
+
+// Open a My List card: find the title in the current catalogue (add it if it is not there)
+app.addEventListener('click',function(e){
+  const a=e.target.closest('a.card[data-aid]');if(!a)return;
+  e.preventDefault();
+  const aid=Number(a.dataset.aid);
+  if(!(window.T||[]).some(x=>x.anilistId)){alert('The anime catalogue is still loading. Please try again in a moment.');return;}
+  let t=titleFor(aid);
+  if(!t){
+    const img=a.querySelector('img');
+    t={i:T.length,anilistId:aid,n:a.querySelector('h3').textContent,g:'ア',h:210,y:'',s:'',e:12,gen:[],t:['sub'],tr:0,d:'Full details are not available for this title right now.',cover:img?img.src:null};
+    T.push(t);
   }
-  async function renderCloudPage(kind){
+  location.hash='title-'+t.i;
+});
+
+async function setFavouriteButton(button){
+  const user=await getUser();
+  const id=Number((location.hash.slice(1)||'').split('-')[1]);
+  const t=(window.T||[])[id];
+  if(!user||!t||!t.anilistId){button.textContent='+ My list';return;}
+  const {data,error}=await db.from('favourites').select('id').eq('user_id',user.id).eq('anime_id',t.anilistId).maybeSingle();
+  if(error){console.error('Kumo favourite lookup failed:',error.message);button.textContent='+ My list';return;}
+  button.textContent=data?'✓ In my list':'+ My list';
+}
+
+// Add / remove a favourite on the title page (capture phase, so the old local handler never runs)
+document.addEventListener('click',async function(event){
+  const button=event.target.closest('.title button');
+  if(!button||!app.contains(button))return;
+  event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  button.disabled=true;
+  try{
     const user=await getUser();
-    if(!user){
-      app.innerHTML='<div class="row-h" style="margin-top:24px"><h2>'+(kind==='history'?'Watch history':'My list')+'</h2></div><p class="empty">Sign in with Google to save and view your '+(kind==='history'?'watch history':'favourites')+' across devices.</p><button class="btn" id="cloud-login">Sign in</button>';
-      const login=document.getElementById('cloud-login');
-      if(login)login.onclick=()=>window.kumoOpenAccount&&window.kumoOpenAccount();
-      return;
-    }
-    app.innerHTML='<p class="empty">Loading your '+(kind==='history'?'watch history':'favourites')+'…</p>';
-    const rows=await getRows(kind==='history'?'watch_history':'favourites',user);
-    const cards=rows.map(r=>{
-      const t=titleFor(r.anime_id);
-      if(!t)return '';
-      return kind==='history'?card(t,r.episode_number,r.progress_seconds):card(t);
-    }).filter(Boolean);
-    pg(kind==='history'?'Watch history':'My list',cards,
-      kind==='history'?'No episodes watched yet. Start an episode and your progress will appear here.':'Your list is empty. Open an anime and add it to your list.');
-    if(kind==='history'&&rows.length){
-      const note=document.createElement('p');note.className='note';
-      note.textContent='One entry per anime, showing the most recently watched episode. Progress syncs while signed in.';
-      app.appendChild(note);
-    }
-  }
-  async function setFavouriteButton(button){
-    const user=await getUser();
-    if(!user){button.textContent='+ My list';return;}
+    if(!user){alert('Please sign in with Google first.');return;}
     const id=Number((location.hash.slice(1)||'').split('-')[1]);
     const t=(window.T||[])[id];
-    if(!t||!t.anilistId){button.textContent='+ My list';return;}
+    if(!t||!t.anilistId){alert('Anime information is not ready yet. Please try again.');return;}
     const {data,error}=await db.from('favourites').select('id').eq('user_id',user.id).eq('anime_id',t.anilistId).maybeSingle();
-    if(error){console.error('Kumo favourite lookup failed:',error.message);button.textContent='+ My list';return;}
-    button.dataset.animeId=String(t.anilistId);
-    button.textContent=data?'✓ In my list':'+ My list';
-  }
-  // Capture the dynamic My List button before the original local-only click handler.
-  document.addEventListener('click',async function(event){
-    const button=event.target.closest('.title button');
-    if(!button||!app.contains(button))return;
-    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
-    button.disabled=true;
-    try{
-      const user=await getUser();
-      if(!user){alert('Please sign in with Google first.');return;}
-      const id=Number((location.hash.slice(1)||'').split('-')[1]);
-      const t=(window.T||[])[id];
-      if(!t||!t.anilistId){alert('Anime information is not ready yet. Please try again.');return;}
-      const {data,error}=await db.from('favourites').select('id').eq('user_id',user.id).eq('anime_id',t.anilistId).maybeSingle();
-      if(error)throw error;
-      if(data){
-        const result=await db.from('favourites').delete().eq('user_id',user.id).eq('anime_id',t.anilistId);
-        if(result.error)throw result.error;
-        button.textContent='+ My list';
-      }else{
-        const result=await db.from('favourites').upsert({
-          user_id:user.id,anime_id:t.anilistId,anime_title:t.n,anime_cover:t.cover||null
-        },{onConflict:'user_id,anime_id'});
-        if(result.error)throw result.error;
-        button.textContent='✓ In my list';
-      }
-    }catch(error){
-      console.error('Kumo favourite save failed:',error);
-      alert('Could not save your favourite: '+(error.message||'Unknown error'));
-    }finally{button.disabled=false;}
-  },true);
-  function refreshPage(){
-    const route=(location.hash.slice(1)||'home').split('-')[0];
-    if(route==='history'||route==='mylist')renderCloudPage(route);
-    else if(route==='title'){
-      const button=app.querySelector('.title button');
-      if(button)setFavouriteButton(button);
+    if(error)throw error;
+    if(data){
+      const r=await db.from('favourites').delete().eq('user_id',user.id).eq('anime_id',t.anilistId);
+      if(r.error)throw r.error;
+      button.textContent='+ My list';
+    }else{
+      const r=await db.from('favourites').upsert({user_id:user.id,anime_id:t.anilistId,anime_title:t.n,anime_cover:t.cover||null},{onConflict:'user_id,anime_id'});
+      if(r.error)throw r.error;
+      button.textContent='✓ In my list';
     }
-  }
-  window.addEventListener('hashchange',()=>setTimeout(refreshPage,0));
-  db.auth.getSession().then(()=>refreshPage());
-  db.auth.onAuthStateChange((event)=>{
-    if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(refreshPage,150);
-  });
-  window.kumoRefreshCloudPage=refreshPage;
+  }catch(error){
+    console.error('Kumo favourite save failed:',error);
+    alert('Could not save your favourite: '+(error.message||'Unknown error'));
+  }finally{button.disabled=false;}
+},true);
+
+function refreshPage(){
+  const r0=(location.hash.slice(1)||'home').split('-')[0];
+  if(r0==='history'||r0==='mylist'){drawPage(r0);return;}
+  token++;
+  if(r0==='title'){const b=app.querySelector('.title button');if(b)setFavouriteButton(b);}
+}
+
+// The catalogue calls route() again after AniList loads; redraw the cloud page afterwards
+const oldRoute=window.route;
+window.route=function(){oldRoute();setTimeout(refreshPage,0);};
+
+window.addEventListener('hashchange',()=>setTimeout(refreshPage,0));
+// Pull the latest cloud data when you come back to the tab (cross-device sync)
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&/^#(mylist|history)/.test(location.hash))refreshPage();});
+db.auth.getSession().then(()=>refreshPage());
+db.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_IN'||ev==='SIGNED_OUT')setTimeout(refreshPage,150);});
+window.kumoRefreshCloudPage=refreshPage;
 })();
 </script>
 
