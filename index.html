@@ -342,9 +342,10 @@ addEventListener("hashchange",route);route();
   const client=window.supabase&&window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
   if(!client){console.error('Kumo: Supabase library failed to load.');return;}
   let currentSession=null,saveTimer=null,lastSaved='';
+  window.kumoSupabase=client; window.kumoSession=null;
   const $=id=>document.getElementById(id);
   function accountName(){return currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email||'Signed in';}
-  function updateButton(){const b=$('acct');if(b)b.textContent=currentSession?accountName().split('@')[0]:'Sign in';}
+  function updateButton(){window.kumoSession=currentSession;const b=$('acct');if(b)b.textContent=currentSession?accountName().split('@')[0]:'Sign in';}
   function openAccount(){
     let d=$('kumo-auth-dialog');if(!d){d=document.createElement('dialog');d.id='kumo-auth-dialog';document.body.appendChild(d);}
     d.innerHTML=currentSession
@@ -371,6 +372,108 @@ addEventListener("hashchange",route);route();
   client.auth.onAuthStateChange((event,session)=>{currentSession=session;updateButton();if(event==='SIGNED_IN'){const d=$('kumo-auth-dialog');if(d&&d.open)d.close();}if(event==='SIGNED_OUT')lastSaved='';});
   window.addEventListener('hashchange',()=>{lastSaved='';});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveCurrentProgress();});
+})();
+</script>
+
+
+<script>
+/* Kumo cloud favourites + grouped cloud history (reliable delegated button handling) */
+(function(){
+  const db=window.kumoSupabase;
+  if(!db)return;
+  const app=document.getElementById('app');
+  async function getUser(){
+    const {data,error}=await db.auth.getSession();
+    if(error){console.warn('Kumo session lookup failed:',error.message);return null;}
+    window.kumoSession=data.session;
+    return data.session?.user||null;
+  }
+  function titleFor(anilistId){return (window.T||[]).find(x=>Number(x.anilistId)===Number(anilistId));}
+  async function getRows(table,user){
+    if(!user)return [];
+    const order=table==='watch_history'?'updated_at':'created_at';
+    const {data,error}=await db.from(table).select('*').eq('user_id',user.id).order(order,{ascending:false});
+    if(error){console.error('Kumo '+table+' read failed:',error.message);return [];}
+    return data||[];
+  }
+  async function renderCloudPage(kind){
+    const user=await getUser();
+    if(!user){
+      app.innerHTML='<div class="row-h" style="margin-top:24px"><h2>'+(kind==='history'?'Watch history':'My list')+'</h2></div><p class="empty">Sign in with Google to save and view your '+(kind==='history'?'watch history':'favourites')+' across devices.</p><button class="btn" id="cloud-login">Sign in</button>';
+      const login=document.getElementById('cloud-login');
+      if(login)login.onclick=()=>window.kumoOpenAccount&&window.kumoOpenAccount();
+      return;
+    }
+    app.innerHTML='<p class="empty">Loading your '+(kind==='history'?'watch history':'favourites')+'…</p>';
+    const rows=await getRows(kind==='history'?'watch_history':'favourites',user);
+    const cards=rows.map(r=>{
+      const t=titleFor(r.anime_id);
+      if(!t)return '';
+      return kind==='history'?card(t,r.episode_number,r.progress_seconds):card(t);
+    }).filter(Boolean);
+    pg(kind==='history'?'Watch history':'My list',cards,
+      kind==='history'?'No episodes watched yet. Start an episode and your progress will appear here.':'Your list is empty. Open an anime and add it to your list.');
+    if(kind==='history'&&rows.length){
+      const note=document.createElement('p');note.className='note';
+      note.textContent='One entry per anime, showing the most recently watched episode. Progress syncs while signed in.';
+      app.appendChild(note);
+    }
+  }
+  async function setFavouriteButton(button){
+    const user=await getUser();
+    if(!user){button.textContent='+ My list';return;}
+    const id=Number((location.hash.slice(1)||'').split('-')[1]);
+    const t=(window.T||[])[id];
+    if(!t||!t.anilistId){button.textContent='+ My list';return;}
+    const {data,error}=await db.from('favourites').select('id').eq('user_id',user.id).eq('anime_id',t.anilistId).maybeSingle();
+    if(error){console.error('Kumo favourite lookup failed:',error.message);button.textContent='+ My list';return;}
+    button.dataset.animeId=String(t.anilistId);
+    button.textContent=data?'✓ In my list':'+ My list';
+  }
+  // Capture the dynamic My List button before the original local-only click handler.
+  document.addEventListener('click',async function(event){
+    const button=event.target.closest('.title button');
+    if(!button||!app.contains(button))return;
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+    button.disabled=true;
+    try{
+      const user=await getUser();
+      if(!user){alert('Please sign in with Google first.');return;}
+      const id=Number((location.hash.slice(1)||'').split('-')[1]);
+      const t=(window.T||[])[id];
+      if(!t||!t.anilistId){alert('Anime information is not ready yet. Please try again.');return;}
+      const {data,error}=await db.from('favourites').select('id').eq('user_id',user.id).eq('anime_id',t.anilistId).maybeSingle();
+      if(error)throw error;
+      if(data){
+        const result=await db.from('favourites').delete().eq('user_id',user.id).eq('anime_id',t.anilistId);
+        if(result.error)throw result.error;
+        button.textContent='+ My list';
+      }else{
+        const result=await db.from('favourites').upsert({
+          user_id:user.id,anime_id:t.anilistId,anime_title:t.n,anime_cover:t.cover||null
+        },{onConflict:'user_id,anime_id'});
+        if(result.error)throw result.error;
+        button.textContent='✓ In my list';
+      }
+    }catch(error){
+      console.error('Kumo favourite save failed:',error);
+      alert('Could not save your favourite: '+(error.message||'Unknown error'));
+    }finally{button.disabled=false;}
+  },true);
+  function refreshPage(){
+    const route=(location.hash.slice(1)||'home').split('-')[0];
+    if(route==='history'||route==='mylist')renderCloudPage(route);
+    else if(route==='title'){
+      const button=app.querySelector('.title button');
+      if(button)setFavouriteButton(button);
+    }
+  }
+  window.addEventListener('hashchange',()=>setTimeout(refreshPage,0));
+  db.auth.getSession().then(()=>refreshPage());
+  db.auth.onAuthStateChange((event)=>{
+    if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(refreshPage,150);
+  });
+  window.kumoRefreshCloudPage=refreshPage;
 })();
 </script>
 
