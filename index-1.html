@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kumo – Anime</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Fraunces:wght@600;800&display=swap">
+<style>
+:root{--bg:#15122080;--bg:#151220;--s:#201c31;--s2:#2a2540;--t:#f3f0fb;--m:#a8a2c0;--a:#ff8fb1;--a2:#6fe0c8;--on:#2a1020;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root:not([data-theme="dark"]){color-scheme:dark}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){color-scheme:light;--bg:#faf7ff;--s:#fff;--s2:#ece6fa;--t:#201c31;--m:#5d5778;--a:#d6336c;--a2:#0b8f78;--on:#fff}}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t);font:400 16px/1.5 "Zen Maru Gothic",system-ui,sans-serif;min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--s);z-index:10}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--a2);outline-offset:2px}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--s);display:flex;align-items:center;gap:20px;padding:12px 16px}
+.logo{font-weight:900;font-size:26px;letter-spacing:-.5px}.logo b{color:var(--a)}
+nav{display:flex;gap:6px;flex:1}
+nav a{padding:6px 14px;border-radius:99px;color:var(--m);font-weight:500}
+nav a.on{background:var(--s2);color:var(--t)}
+main{max-width:1100px;margin:0 auto;padding:0 16px 48px}
+.hero{position:relative;margin:16px 0 28px;border-radius:20px;overflow:hidden;min-height:300px;display:flex;align-items:flex-end;padding:28px}
+.hero .txt{position:relative;max-width:520px}
+.hero h1{font-size:clamp(30px,6vw,52px);line-height:1.05;margin:0 0 10px;font-weight:900}
+.hero p{margin:0 0 18px;color:#fff;opacity:.9}
+.hero .glyph{position:absolute;right:-10px;top:-30px;font-size:260px;font-weight:900;opacity:.14;line-height:1;user-select:none}
+.dots{position:absolute;right:16px;bottom:16px;display:flex;gap:8px}
+.dots button{width:10px;height:10px;border-radius:50%;background:#fff;opacity:.4}
+.dots button.on{opacity:1;width:26px;border-radius:6px}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--a);color:var(--on);padding:11px 22px;border-radius:12px;font-weight:700}
+.btn.ghost{background:var(--s2);color:var(--t)}
+.row-h{display:flex;align-items:center;justify-content:space-between;margin:28px 0 12px;gap:12px;flex-wrap:wrap}
+h2{margin:0;font-size:24px;font-weight:700}
+.tabs{display:flex;gap:4px;overflow-x:auto}
+.tabs button{padding:6px 14px;border-radius:99px;color:var(--m);white-space:nowrap}
+.tabs button.on{background:var(--s2);color:var(--t)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.card{display:block;text-align:left}
+.poster{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;display:flex;align-items:flex-end;padding:10px;transition:transform .15s}
+.card:hover .poster{transform:translateY(-3px)}
+.poster .g{position:absolute;right:-6px;top:-14px;font-size:120px;font-weight:900;opacity:.18;line-height:1}
+.poster span{position:relative;font-size:12px;font-weight:700;background:rgba(0,0,0,.55);color:#fff;padding:2px 8px;border-radius:6px;margin-right:4px}
+.card h3{font-size:15px;margin:8px 0 0;font-weight:500;line-height:1.3}
+.card small{color:var(--m)}
+.bar2{height:4px;background:var(--s2);border-radius:4px;margin-top:6px;overflow:hidden}.bar2 i{display:block;height:100%;background:var(--a2)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+input,select{background:var(--s);color:var(--t);border:1px solid var(--s2);border-radius:12px;padding:10px 14px;font:inherit}
+input{flex:1;min-width:180px}
+.title{display:grid;grid-template-columns:220px 1fr;gap:24px;margin-top:20px}
+.title .poster{aspect-ratio:2/3}
+.tags span{display:inline-block;background:var(--s2);padding:2px 12px;border-radius:99px;margin:0 6px 6px 0;font-size:14px}
+.eps{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:10px}
+.eps a{background:var(--s);border-radius:10px;text-align:center;padding:10px 0;font-weight:500}
+.eps a.on{background:var(--a);color:var(--on)}
+.player{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;margin-top:16px;background:#000}
+.scene{position:absolute;inset:0;background-size:300% 300%}
+.playing .scene{animation:drift 6s linear infinite}
+@keyframes drift{to{background-position:100% 100%}}
+@media (prefers-reduced-motion:reduce){.playing .scene{animation:none}}
+#big{position:absolute;inset:0;margin:auto;width:76px;height:76px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:30px}
+.playing #big{opacity:0}
+.ctl{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:12px;padding:10px 14px;background:linear-gradient(transparent,rgba(0,0,0,.75));color:#fff;font-size:14px}
+.seek{flex:1;height:18px;display:flex;align-items:center;cursor:pointer}
+.seek div{height:5px;width:100%;background:rgba(255,255,255,.3);border-radius:4px;overflow:hidden}
+.seek i{display:block;height:100%;width:0;background:var(--a)}
+.note{color:var(--m);font-size:14px;margin:10px 0}
+.pn{display:flex;gap:10px;margin:14px 0 0}
+.empty{color:var(--m);padding:24px 0}
+footer{color:var(--m);font-size:13px;text-align:center;padding:24px 16px}
+@media (max-width:640px){.title{grid-template-columns:1fr}.title .poster{max-width:200px}.hero{min-height:260px;padding:20px}.hero .glyph{font-size:180px}}
+:root{--a:#e9c46a;--a2:#7fd8c4;--on:#241a05;--bg:#11101a;--s:#1b1928;--s2:#292640}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--a:#9a6b0c;--a2:#0b8f78;--on:#fff}}
+body{background:radial-gradient(1200px 500px at 70% -10%,rgba(233,196,106,.1),transparent 60%),var(--bg)}
+.logo,h1,h2{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em}
+header{background:color-mix(in srgb,var(--s) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+nav{overflow-x:auto}
+.btn{border-radius:99px;box-shadow:0 6px 18px -8px var(--a);transition:transform .15s}.btn:hover{transform:translateY(-1px)}
+.btn.ghost{box-shadow:none;background:color-mix(in srgb,var(--t) 12%,transparent)}
+.hs{position:relative;margin:16px 0 28px}
+.hrow{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:24px;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
+.hrow::-webkit-scrollbar{display:none}
+.sl{flex:0 0 100%;scroll-snap-align:start;position:relative;min-height:clamp(320px,52vw,460px);display:flex;align-items:flex-end;padding:clamp(20px,4vw,44px);overflow:hidden;color:#fff}
+.sl::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,8,20,.75),transparent 70%),linear-gradient(0deg,rgba(10,8,20,.6),transparent 50%)}
+.sl .glyph{position:absolute;right:6%;top:-8%;font-size:clamp(200px,34vw,380px);font-weight:900;opacity:.16;line-height:1}
+.sl .txt{position:relative;max-width:520px}
+.sl small{display:block;margin-bottom:6px;color:var(--a);font-weight:700}
+.sl h1{font-size:clamp(32px,6vw,58px);line-height:1.02;margin:0 0 10px;font-weight:800}
+.sl p{margin:0 0 18px;opacity:.9;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rk{position:absolute;right:28px;bottom:-34px;font:800 clamp(120px,22vw,220px)/1 Fraunces,Georgia,serif;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.45)}
+.hb{position:absolute;top:50%;left:10px;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;font-size:24px;backdrop-filter:blur(6px)}.hb.r{left:auto;right:10px}
+@media (hover:none){.hb{display:none}}
+.poster{box-shadow:0 10px 24px -12px rgba(0,0,0,.8)}
+.poster::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(0,0,0,.6))}
+.poster span{z-index:1}
+.grid.strip{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:150px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.rkw{position:relative}.nb{position:absolute;z-index:2;top:8px;left:8px;min-width:28px;height:28px;border-radius:8px;background:var(--a);color:var(--on);display:grid;place-items:center;font-weight:800}
+dialog{background:var(--s);color:var(--t);border:1px solid var(--s2);border-radius:20px;padding:24px;max-width:min(380px,90vw)}dialog::backdrop{background:rgba(0,0,0,.6)}dialog input{width:100%;margin:8px 0 12px}
+@media (max-width:640px){header{flex-wrap:wrap;gap:8px}.logo{flex:1}nav{order:3;flex-basis:100%}}
+
+/* Functional playback layer */
+.player{aspect-ratio:16/9;background:#000;display:grid;place-items:center;}
+.player video{width:100%;height:100%;display:block;background:#000;object-fit:contain}
+.source-panel{background:var(--s);border:1px solid var(--s2);border-radius:16px;padding:16px;margin:14px 0;display:grid;gap:10px}
+.source-panel input{width:100%;min-width:0}
+.source-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.source-status{font-size:13px;color:var(--m);overflow-wrap:anywhere}
+.source-status.error{color:#ff8b8b}.source-status.good{color:var(--a2)}
+
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#home">ku<b>mo</b></a>
+  <nav><a href="#home" id="n-home">Home</a><a href="#browse" id="n-browse">Browse</a><a href="#mylist" id="n-mylist">My list</a><a href="#history" id="n-history">History</a></nav><button class="btn ghost" id="acct">Sign in</button>
+</header>
+<main id="app"></main>
+<footer>Anime metadata and artwork provided by AniList. Kumo is independent and not affiliated with AniList. Add only video sources you own or are licensed to stream.</footer>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+<script>
+var T=[
+{n:"Ember Tide",g:"潮",h:12,y:2026,s:"Airing",e:12,gen:["Fantasy","Adventure"],t:["sub","dub"],tr:1,d:"A lighthouse keeper’s daughter learns the sea remembers every ship it has swallowed, and some of them want to go home."},
+{n:"Clockwork Orchard",g:"時",h:95,y:2025,s:"Completed",e:24,gen:["Mystery","Slice of Life"],t:["sub"],tr:0,d:"Every tree in the orchard ticks. When one stops, someone in the village forgets a year of their life."},
+{n:"Hollow Lantern",g:"灯",h:265,y:2026,s:"Airing",e:10,gen:["Horror","Mystery"],t:["sub","dub"],tr:1,d:"Night couriers carry lanterns through a city where the streets rearrange themselves after dark."},
+{n:"Starlit Courier",g:"星",h:215,y:2024,s:"Completed",e:26,gen:["Sci-Fi","Adventure"],t:["sub","dub"],tr:1,d:"A teenage pilot delivers parcels between space stations and slowly uncovers what is inside the one she must never open."},
+{n:"Salt and Sparrow",g:"鳥",h:35,y:2025,s:"Completed",e:13,gen:["Slice of Life","Romance"],t:["sub"],tr:0,d:"Two rival bakers on a windy island discover their grandmothers once shared a secret recipe."},
+{n:"Neon Ronin Blues",g:"侍",h:320,y:2026,s:"Airing",e:8,gen:["Action","Sci-Fi"],t:["sub","dub"],tr:1,d:"A masterless swordsman fights for rent money in a city lit entirely by advertisements."},
+{n:"Paper Moon Academy",g:"月",h:170,y:2023,s:"Completed",e:25,gen:["Fantasy","Comedy"],t:["dub"],tr:0,d:"At a school for folded-paper spirits, the new student can only fold origami frogs. Badly."},
+{n:"The Last Kettle",g:"茶",h:60,y:2026,s:"Upcoming",e:12,gen:["Comedy","Slice of Life"],t:["sub"],tr:0,d:"The final tea shop before the end of the world still has customers, and they all have opinions about the water."},
+{n:"Glass Harbor",g:"港",h:190,y:2026,s:"Airing",e:12,gen:["Mystery","Action"],t:["sub","dub"],tr:1,d:"A salvage diver finds a sunken city where every window still shows a different day of the past."},
+{n:"Maple Circuit",g:"楓",h:20,y:2025,s:"Completed",e:12,gen:["Sci-Fi","Comedy"],t:["dub"],tr:0,d:"A repair robot at a mountain inn keeps fixing things that were never broken, and the guests keep getting stranger."}
+];
+var app=document.getElementById("app"),iv=null,q="",gf="All",sf="All",tab="all",hi=0,hv=null;
+function bg(h,a){return "linear-gradient(145deg,hsl("+h+",70%,"+(a||42)+"%),hsl("+(h+50)+",65%,22%))"}
+function poster(t,badge){return '<div class="poster" style="background:'+bg(t.h)+'"><div class="g">'+t.g+'</div>'+(badge||'')+'</div>'}
+function card(t,ep,pos){var p=pos!=null?'<div class="bar2"><i style="width:'+Math.min(100,pos/14.4)+'%"></i></div>':'';
+return '<a class="card" href="#'+(ep?'watch-'+t.i+'-'+ep:'title-'+t.i)+'">'+poster(t,ep?'<span>EP '+ep+'</span>':'<span>'+t.e+' eps</span>')+'<h3>'+t.n+'</h3><small>'+t.gen[0]+' · '+t.y+'</small>'+p+'</a>'}
+T.forEach(function(t,i){t.i=i});
+function load(){try{return JSON.parse(localStorage.getItem("kumo")||"{}")}catch(e){return {}}}
+function save(o){try{localStorage.setItem("kumo",JSON.stringify(o))}catch(e){}}
+function home(){
+  var h=T.filter(function(t){return t.tr}),c=load(),keys=Object.keys(c);
+  app.innerHTML='<section class="hero" id="hero"></section>'+
+  (keys.length?'<div class="row-h"><h2>Continue watching</h2></div><div class="grid" id="cw"></div>':'')+
+  '<div class="row-h"><h2>Latest episodes</h2><div class="tabs" id="tabs"></div></div><div class="grid" id="lat"></div>'+
+  '<div class="row-h"><h2>Trending</h2><a class="btn ghost" href="#browse">See all titles</a></div><div class="grid" id="trd"></div>';
+  if(keys.length)document.getElementById("cw").innerHTML=keys.map(function(k){var t=T[k];return t?card(t,c[k].ep,c[k].pos):""}).join("");
+  function hero(){var t=h[hi%h.length],el=document.getElementById("hero");if(!el)return;
+    el.style.background=bg(t.h,36);
+    el.innerHTML='<div class="glyph">'+t.g+'</div><div class="txt"><h1>'+t.n+'</h1><p>'+t.d+'</p><a class="btn" href="#watch-'+t.i+'-1">▶ Play now</a> <a class="btn ghost" href="#title-'+t.i+'">Details</a></div><div class="dots">'+h.map(function(_,j){return '<button aria-label="Slide '+(j+1)+'" data-i="'+j+'" class="'+(j==hi%h.length?'on':'')+'"></button>'}).join("")+'</div>';
+    el.querySelectorAll(".dots button").forEach(function(b){b.onclick=function(){hi=+b.dataset.i;clearInterval(hv);hero()}})}
+  hero();clearInterval(hv);
+  if(!matchMedia("(prefers-reduced-motion:reduce)").matches)hv=setInterval(function(){hi++;hero()},6000);
+  var tb=[["all","All"],["sub","Sub"],["dub","Dub"],["trend","Trending"]];
+  function lat(){document.getElementById("tabs").innerHTML=tb.map(function(x){return '<button data-t="'+x[0]+'" class="'+(tab==x[0]?'on':'')+'">'+x[1]+'</button>'}).join("");
+    document.querySelectorAll("#tabs button").forEach(function(b){b.onclick=function(){tab=b.dataset.t;lat()}});
+    var l=T.filter(function(t){return tab=="all"||(tab=="trend"?t.tr:t.t.indexOf(tab)>-1)});
+    document.getElementById("lat").innerHTML=l.map(function(t){return card(t,Math.max(1,Math.min(t.e,t.i+3)))}).join("")}
+  lat();
+  document.getElementById("trd").innerHTML=h.map(function(t){return card(t)}).join("");
+}
+function browse(){
+  var gs=["All"].concat(Array.from(new Set(T.reduce(function(a,t){return a.concat(t.gen)},[]))).sort());
+  app.innerHTML='<h2 style="margin-top:24px">Browse</h2><div class="filters"><input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="'+q+'"><select id="g" aria-label="Genre">'+gs.map(function(x){return '<option'+(x==gf?' selected':'')+'>'+x+'</option>'}).join("")+'</select><select id="s" aria-label="Status">'+["All","Airing","Completed","Upcoming"].map(function(x){return '<option'+(x==sf?' selected':'')+'>'+x+'</option>'}).join("")+'</select></div><div class="grid" id="res"></div>';
+  function f(){var l=T.filter(function(t){return t.n.toLowerCase().indexOf(q.toLowerCase())>-1&&(gf=="All"||t.gen.indexOf(gf)>-1)&&(sf=="All"||t.s==sf)});
+    document.getElementById("res").innerHTML=l.length?l.map(function(t){return card(t)}).join(""):'<p class="empty">No titles match. Clear the search or pick a different genre.</p>'}
+  document.getElementById("q").oninput=function(e){q=e.target.value;f()};
+  document.getElementById("g").onchange=function(e){gf=e.target.value;f()};
+  document.getElementById("s").onchange=function(e){sf=e.target.value;f()};f();
+}
+function title(id){var t=T[id];if(!t)return home();
+  app.innerHTML='<div class="title">'+poster(t)+'<div><h1 style="margin:0 0 8px;font-size:36px">'+t.n+'</h1><div class="tags">'+t.gen.concat([t.s,String(t.y)]).map(function(x){return '<span>'+x+'</span>'}).join("")+'</div><p>'+t.d+'</p><a class="btn" href="#watch-'+id+'-1">▶ Watch episode 1</a></div></div><div class="row-h"><h2>Episodes</h2></div><div class="eps">'+epl(t,0)+'</div>';}
+function epl(t,cur){var s="";for(var i=1;i<=t.e;i++)s+='<a class="'+(i==cur?'on':'')+'" href="#watch-'+t.i+'-'+i+'">'+i+'</a>';return s}
+function fmt(s){return Math.floor(s/60)+":"+("0"+Math.floor(s%60)).slice(-2)}
+function watch(id,ep){
+  var t=T[id];if(!t||ep<1||ep>t.e)return home();
+  var c=load(),pos=c[id]&&c[id].ep==ep?c[id].pos:0;
+  var sources={};try{sources=JSON.parse(localStorage.getItem("kumo-video-sources")||"{}")}catch(e){}
+  var key=id+"-"+ep,src=sources[key]||"",localUrl=null,hls=null,video=null;
+  app.innerHTML='<div class="player" id="pl"><video id="kumo-video" controls playsinline preload="metadata" controlsList="nodownload"></video></div>'+
+    '<div class="source-panel"><strong>Episode video source</strong><p class="note" style="margin:0">Add a direct MP4 URL or an HLS playlist (.m3u8) that you own or are authorized to stream. You can also select a video file from this device for a local test.</p>'+ 
+    '<input id="video-url" type="url" inputmode="url" placeholder="https://example.com/episode.mp4 or .m3u8" aria-label="Video URL" value="'+String(src).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'">'+
+    '<div class="source-actions"><button class="btn" id="load-url">Load video URL</button><button class="btn ghost" id="pick-file">Choose video file</button><input id="file-input" type="file" accept="video/mp4,video/webm,video/ogg,video/*" hidden></div>'+
+    '<div class="source-status" id="source-status">'+(src?'Saved source found. Press Load video URL.':'No video source configured for this episode yet.')+'</div></div>'+
+    '<h1 style="margin:0;font-size:26px">'+t.n+' <small style="color:var(--m);font-weight:500">Episode '+ep+'</small></h1>'+ 
+    '<div class="pn">'+(ep>1?'<a class="btn ghost" href="#watch-'+id+'-'+(ep-1)+'">Previous</a>':'')+(ep<t.e?'<a class="btn" href="#watch-'+id+'-'+(ep+1)+'">Next episode</a>':'')+'<a class="btn ghost" href="#title-'+id+'">All episodes</a></div><div class="row-h"><h2>Episodes</h2></div><div class="eps">'+epl(t,ep)+'</div>';
+  video=document.getElementById("kumo-video");
+  var status=document.getElementById("source-status");
+  function setStatus(message,kind){status.textContent=message;status.className="source-status"+(kind?" "+kind:"")}
+  function cleanup(){if(hls){hls.destroy();hls=null}if(localUrl){URL.revokeObjectURL(localUrl);localUrl=null}}
+  function rememberSource(value){sources[key]=value;try{localStorage.setItem("kumo-video-sources",JSON.stringify(sources))}catch(e){setStatus("Could not save this source in browser storage.","error")}}
+  function playSource(value,saveIt){
+    cleanup();video.pause();video.removeAttribute("src");video.load();
+    if(!value){setStatus("Enter a video URL or choose a local file.","error");return}
+    if(saveIt)rememberSource(value);
+    var isHls=/\.m3u8($|[?#])/i.test(value);
+    if(isHls && video.canPlayType("application/vnd.apple.mpegurl")){
+      video.src=value;video.load();setStatus("HLS source loaded using native browser playback.","good");
+    }else if(isHls && window.Hls && Hls.isSupported()){
+      hls=new Hls({enableWorker:true});hls.loadSource(value);hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,function(){setStatus("HLS stream ready. Press play.","good")});
+      hls.on(Hls.Events.ERROR,function(event,data){if(data.fatal)setStatus("HLS playback error: check the stream URL, CORS settings and source availability.","error")});
+    }else{
+      video.src=value;video.load();setStatus("Video source loaded. Press play. If it fails, check the URL, format and CORS permissions.","good");
+    }
+  }
+  document.getElementById("load-url").onclick=function(){var value=document.getElementById("video-url").value.trim();playSource(value,true)};
+  document.getElementById("pick-file").onclick=function(){document.getElementById("file-input").click()};
+  document.getElementById("file-input").onchange=function(e){var file=e.target.files&&e.target.files[0];if(!file)return;cleanup();localUrl=URL.createObjectURL(file);video.src=localUrl;video.load();setStatus("Local file loaded: "+file.name+". This file is available only on this device and isn't uploaded.","good")};
+  video.addEventListener("timeupdate",function(){var o=load();o[id]={ep:ep,pos:video.currentTime||0};save(o)});
+  video.addEventListener("ended",function(){if(ep<t.e)location.hash="watch-"+id+"-"+(ep+1)});
+  video.addEventListener("error",function(){if(video.error)setStatus("The browser couldn't play this video. Check the URL, codec, server permissions and CORS.","error")});
+  if(pos>0)video.addEventListener("loadedmetadata",function(){try{video.currentTime=pos}catch(e){}},{once:true});
+  window.addEventListener("hashchange",cleanup,{once:true});
+}
+function route(){clearInterval(iv);clearInterval(hv);var p=(location.hash.slice(1)||"home").split("-");
+  document.getElementById("n-home").className=p[0]=="home"?"on":"";document.getElementById("n-browse").className=p[0]=="browse"?"on":"";
+  if(p[0]=="browse")browse();else if(p[0]=="title")title(+p[1]);else if(p[0]=="watch")watch(+p[1],+p[2]);else home();
+  window.scrollTo(0,0)}
+var user="";try{user=(localStorage.getItem("kumo-user")||"").replace(/[^\w ]/g,"")}catch(e){}
+function K(s){return "kumo"+s+(user?"-"+user:"")}
+function load(){try{return JSON.parse(localStorage.getItem(K(""))||"{}")}catch(e){return {}}}
+function save(o){try{localStorage.setItem(K(""),JSON.stringify(o))}catch(e){}}
+function ls(k){try{return JSON.parse(localStorage.getItem(K(k))||"[]")}catch(e){return []}}
+function ss(k,v){try{localStorage.setItem(K(k),JSON.stringify(v))}catch(e){}}
+function P(){try{return JSON.parse(localStorage.getItem("kumo-plays")||"{}")}catch(e){return {}}}
+function top10(){var d=Math.floor(Date.now()/864e5),p=P();function sc(t){return (t.tr?60:30)+((t.i*37+d*53)%41)+(p[t.i]||0)*8}
+return T.slice().sort(function(a,b){return sc(b)-sc(a)}).slice(0,10)}
+function sec(h,id){return '<div class="row-h"><h2>'+h+'</h2></div><div class="grid strip" id="'+id+'"></div>'}
+function fill(id,a){var e=document.getElementById(id);if(e)e.innerHTML=a.join("")}
+function home(){
+ var top=top10(),c=load(),ck=Object.keys(c).filter(function(k){return T[k]}),hs=ls("-h"),ml=ls("-l");
+ app.innerHTML='<section class="hs"><div class="hrow" id="hrow">'+top.map(function(t,i){return '<article class="sl" style="background:'+bg(t.h,36)+'"><div class="glyph">'+t.g+'</div><div class="rk">'+(i+1)+'</div><div class="txt"><small>Trending #'+(i+1)+' today</small><h1>'+t.n+'</h1><p>'+t.d+'</p><a class="btn" href="#watch-'+t.i+'-1">▶ Play now</a> <a class="btn ghost" href="#title-'+t.i+'">Details</a></div></article>'}).join("")+'</div><button class="hb" id="hp" aria-label="Previous">‹</button><button class="hb r" id="hn" aria-label="Next">›</button></section>'+
+ (ck.length?sec("Continue watching","cw"):"")+(hs.length?sec("Recently played","rw"):"")+(ml.length?sec("My list","ml"):"")+
+ '<div class="row-h"><h2>Latest episodes</h2><div class="tabs" id="tabs"></div></div><div class="grid" id="lat"></div>'+sec("Top 10 trending","trd");
+ fill("cw",ck.map(function(k){return card(T[k],c[k].ep,c[k].pos)}));
+ fill("rw",hs.slice(0,10).map(function(x){return T[x[0]]?card(T[x[0]],x[1]):""}));
+ fill("ml",ml.map(function(i){return T[i]?card(T[i]):""}));
+ fill("trd",top.map(function(t,i){return '<div class="rkw"><b class="nb">'+(i+1)+'</b>'+card(t)+'</div>'}));
+ var r=document.getElementById("hrow");
+ function go(d){var w=r.clientWidth,i=(Math.round(r.scrollLeft/w)+d+top.length)%top.length;r.scrollTo({left:i*w,behavior:"smooth"})}
+ document.getElementById("hp").onclick=function(){go(-1)};document.getElementById("hn").onclick=function(){go(1)};
+ if(!matchMedia("(prefers-reduced-motion:reduce)").matches)hv=setInterval(function(){if(!r.matches(":hover"))go(1)},6000);
+ var tb=[["all","All"],["sub","Sub"],["dub","Dub"],["trend","Trending"]];
+ function lat(){document.getElementById("tabs").innerHTML=tb.map(function(x){return '<button data-t="'+x[0]+'" class="'+(tab==x[0]?'on':'')+'">'+x[1]+'</button>'}).join("");
+  document.querySelectorAll("#tabs button").forEach(function(b){b.onclick=function(){tab=b.dataset.t;lat()}});
+  fill("lat",T.filter(function(t){return tab=="all"||(tab=="trend"?t.tr:t.t.indexOf(tab)>-1)}).map(function(t){return card(t,Math.max(1,Math.min(t.e,t.i+3)))}))}
+ lat();
+}
+function pg(h,a,msg,x){app.innerHTML='<div class="row-h" style="margin-top:24px"><h2>'+h+'</h2>'+(x||"")+'</div>'+(a.length?'<div class="grid">'+a.join("")+'</div>':'<p class="empty">'+msg+'</p>')}
+var _t=title;title=function(id){_t(id);var a=app.querySelector(".title .btn");if(!a)return;var b=document.createElement("button");b.className="btn ghost";a.after(b);
+ function u(){b.textContent=ls("-l").indexOf(id)>-1?"✓ In my list":"+ My list"}
+ b.onclick=function(){var l=ls("-l"),k=l.indexOf(id);if(k>-1)l.splice(k,1);else l.unshift(id);ss("-l",l);u()};u()};
+var _w=watch;watch=function(id,ep){_w(id,ep);if(!T[id]||ep<1||ep>T[id].e)return;var h=ls("-h").filter(function(x){return x[0]!=id||x[1]!=ep});h.unshift([id,ep]);ss("-h",h.slice(0,20));var p=P();p[id]=(p[id]||0)+1;try{localStorage.setItem("kumo-plays",JSON.stringify(p))}catch(e){}};
+function route(){clearInterval(iv);clearInterval(hv);var p=(location.hash.slice(1)||"home").split("-");
+ ["home","browse","mylist","history"].forEach(function(n){document.getElementById("n-"+n).className=p[0]==n?"on":""});
+ if(p[0]=="browse")browse();else if(p[0]=="title")title(+p[1]);else if(p[0]=="watch")watch(+p[1],+p[2]);
+ else if(p[0]=="mylist")pg("My list",ls("-l").filter(function(i){return T[i]}).map(function(i){return card(T[i])}),"Your list is empty. Open a title and choose + My list.");
+ else if(p[0]=="history"){pg("Watch history",ls("-h").filter(function(x){return T[x[0]]}).map(function(x){return card(T[x[0]],x[1])}),"Nothing watched yet. Play an episode and it will show up here.",'<button class="btn ghost" id="ch">Clear history</button>');var ch=document.getElementById("ch");if(ch)ch.onclick=function(){ss("-h",[]);route()}}
+ else home();
+ window.scrollTo(0,0)}
+function acc(){document.getElementById("acct").textContent="Sign in"}
+function dlg(){if(window.kumoOpenAccount)window.kumoOpenAccount()}
+document.getElementById("acct").onclick=dlg;acc();
+addEventListener("hashchange",route);route();
+</script>
+
+<!-- Kumo automatic catalogue: public anime metadata from AniList. This does NOT supply video streams. -->
+<style>
+.poster{position:relative;background:#242033!important}
+.poster img.kumo-cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.poster .g{z-index:1;text-shadow:0 2px 8px #000}
+.kumo-api-status{margin:12px 0;padding:10px 14px;border-radius:10px;background:var(--s);color:var(--m);font-size:13px}
+.kumo-api-status strong{color:var(--t)}
+</style>
+<script>
+(function(){
+  const ENDPOINT='https://graphql.anilist.co';
+  const QUERY=`query ($page:Int) { Page(page:$page, perPage:30) { media(type:ANIME, isAdult:false, sort:POPULARITY_DESC) { id title { romaji english } coverImage { large } bannerImage description(asHtml:false) episodes status seasonYear genres nextAiringEpisode { episode airingAt timeUntilAiring } averageScore format } } }`;
+  const originalPoster=window.poster;
+  window.poster=function(t,badge){
+    const image=t.cover?'<img class="kumo-cover" loading="lazy" referrerpolicy="no-referrer" src="'+String(t.cover).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" alt="">':'';
+    return '<div class="poster" style="background:'+bg(t.h||210)+'">'+image+'<div class="g">'+(t.g||'ア')+'</div>'+(badge||'')+'</div>';
+  };
+  function statusLabel(s){return s==='RELEASING'?'Airing':s==='FINISHED'?'Completed':s==='NOT_YET_RELEASED'?'Upcoming':s==='CANCELLED'?'Cancelled':'Unknown'}
+  function announce(message){let el=document.getElementById('kumo-api-status');if(!el){el=document.createElement('div');el.id='kumo-api-status';el.className='kumo-api-status';let main=document.getElementById('app');if(main)main.prepend(el);}if(el)el.innerHTML=message;}
+  async function loadCatalogue(){
+    announce('<strong>Updating anime catalogue…</strong> Fetching titles, posters, genres and airing information.');
+    try{
+      const res=await fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({query:QUERY,variables:{page:1}})});
+      if(!res.ok)throw new Error('AniList returned HTTP '+res.status);
+      const json=await res.json();if(json.errors)throw new Error(json.errors[0].message||'API query failed');
+      const media=json.data.Page.media||[];
+      if(!media.length)throw new Error('No anime returned');
+      const fresh=media.map((m,i)=>({
+        i, anilistId:m.id,
+        n:(m.title.english||m.title.romaji||'Untitled'),
+        g:(m.title.native||'ア').slice(0,2),
+        h:(i*47+25)%360,
+        y:m.seasonYear||new Date().getFullYear(),
+        s:statusLabel(m.status),
+        e:m.episodes||12,
+        gen:m.genres||[],
+        t:['sub'],tr:i<12?1:0,
+        d:(m.description||'No synopsis available.').replace(/<[^>]*>/g,' ').replace(/&quot;/g,'"').replace(/&#039;/g,"'").slice(0,420),
+        cover:m.coverImage&&m.coverImage.large,
+        banner:m.bannerImage,
+        nextEpisode:m.nextAiringEpisode&&m.nextAiringEpisode.episode,
+        nextAiringAt:m.nextAiringEpisode&&m.nextAiringEpisode.airingAt,
+        score:m.averageScore
+      }));
+      T=fresh;
+      // Preserve local watch history/list by using the new stable AniList IDs as item keys is a future backend step.
+      route();
+      announce('<strong>Catalogue updated.</strong> Showing '+fresh.length+' anime from AniList. Metadata and artwork update automatically; video sources still need to be supplied separately.');
+      const footer=document.querySelector('footer');if(footer)footer.textContent='Anime metadata and artwork: AniList API. Kumo is an independent project and is not affiliated with AniList. Video playback requires a source you own or are licensed to stream.';
+    }catch(err){
+      console.warn('Kumo catalogue update failed:',err);
+      announce('<strong>Could not update catalogue.</strong> Showing the built-in demo catalogue instead. Check your connection and reload.');
+    }
+  }
+  // Expose a manual refresh hook for later settings/UI integration.
+  window.kumoRefreshCatalogue=loadCatalogue;
+  loadCatalogue();
+})();
+</script>
+
+
+<!-- Supabase authentication and private watch-history sync. The publishable key is intended for browser use; RLS protects user rows. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+#kumo-auth-note{font-size:13px;color:var(--m);margin:12px 0;overflow-wrap:anywhere}
+#kumo-auth-error{color:#ff9292;font-size:13px;margin-top:10px}
+</style>
+<script>
+(function(){
+  const SUPABASE_URL='https://qbixwmpghtznkrgjxdpk.supabase.co';
+  const SUPABASE_ANON_KEY='sb_publishable_xKkecQNcA8srZJdlnRWjNQ_PtXVGZkv';
+  const client=window.supabase&&window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  if(!client){console.error('Kumo: Supabase library failed to load.');return;}
+  let currentSession=null,saveTimer=null,lastSaved='';
+  window.kumoSupabase=client; window.kumoSession=null;
+  const $=id=>document.getElementById(id);
+  function accountName(){return currentSession?.user?.user_metadata?.full_name||currentSession?.user?.email||'Signed in';}
+  function updateButton(){window.kumoSession=currentSession;const b=$('acct');if(b)b.textContent=currentSession?accountName().split('@')[0]:'Sign in';}
+  function openAccount(){
+    let d=$('kumo-auth-dialog');if(!d){d=document.createElement('dialog');d.id='kumo-auth-dialog';document.body.appendChild(d);}
+    d.innerHTML=currentSession
+      ? '<h2>Your Kumo account</h2><p class="note">Signed in as '+escapeHtml(currentSession.user.email||accountName())+'. Your account is connected to Supabase.</p><p id="kumo-auth-note">Watch progress can be saved to your account when you play an episode.</p><button class="btn" id="kumo-signout">Sign out</button> <button class="btn ghost" id="kumo-close">Close</button>'
+      : '<h2>Welcome to Kumo</h2><p class="note">Sign in securely with your Google account. This connects your Kumo profile across devices.</p><button class="btn" id="kumo-google">Continue with Google</button><p id="kumo-auth-note">Google sign-in requires the deployed Kumo website URL to be allowed in Supabase Auth redirect settings.</p><div id="kumo-auth-error"></div><button class="btn ghost" id="kumo-close">Close</button>';
+    d.showModal();
+    $('kumo-close').onclick=()=>d.close();
+    const g=$('kumo-google');if(g)g.onclick=async()=>{g.disabled=true;g.textContent='Connecting…';const redirectTo=location.origin+location.pathname;const {error}=await client.auth.signInWithOAuth({provider:'google',options:{redirectTo}});if(error){const e=$('kumo-auth-error');if(e)e.textContent=error.message;g.disabled=false;g.textContent='Continue with Google';}};
+    const so=$('kumo-signout');if(so)so.onclick=async()=>{await client.auth.signOut();d.close();};
+  }
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  window.kumoOpenAccount=openAccount;
+  async function saveCurrentProgress(){
+    if(!currentSession)return;
+    const video=$('kumo-video');if(!video||!Number.isFinite(video.currentTime))return;
+    const match=(location.hash||'').match(/^#watch-(\d+)-(\d+)/);if(!match)return;
+    const id=Number(match[1]),ep=Number(match[2]),t=window.T&&T[id];if(!t||!t.anilistId)return;
+    const signature=[currentSession.user.id,t.anilistId,ep,Math.floor(video.currentTime/10)].join(':');if(signature===lastSaved)return;lastSaved=signature;
+    const {error}=await client.from('watch_history').upsert({user_id:currentSession.user.id,anime_id:t.anilistId,anime_title:t.n,anime_cover:t.cover||null,episode_number:ep,progress_seconds:Math.floor(video.currentTime),duration_seconds:Math.floor(video.duration||0),updated_at:new Date().toISOString()},{onConflict:'user_id,anime_id'});
+    if(error){console.warn('Kumo watch-history sync failed:',error.message);lastSaved='';}
+  }
+  function attachProgressSync(){clearInterval(saveTimer);saveTimer=setInterval(saveCurrentProgress,10000);}
+  client.auth.getSession().then(({data})=>{currentSession=data.session;updateButton();attachProgressSync();});
+  client.auth.onAuthStateChange((event,session)=>{currentSession=session;updateButton();if(event==='SIGNED_IN'){const d=$('kumo-auth-dialog');if(d&&d.open)d.close();}if(event==='SIGNED_OUT')lastSaved='';});
+  window.addEventListener('hashchange',()=>{lastSaved='';});
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')saveCurrentProgress();});
+})();
+</script>
+
+
+<script>
+/* Kumo cloud favourites + grouped cloud history (reliable delegated button handling) */
+(function(){
+  const db=window.kumoSupabase;
+  if(!db)return;
+  const app=document.getElementById('app');
+  async function getUser(){
+    const {data,error}=await db.auth.getSession();
+    if(error){console.warn('Kumo session lookup failed:',error.message);return null;}
+    window.kumoSession=data.session;
+    return data.session?.user||null;
+  }
+  function titleFor(anilistId){return (window.T||[]).find(x=>Number(x.anilistId)===Number(anilistId));}
+  async function getRows(table,user){
+    if(!user)return [];
+    const order=table==='watch_history'?'updated_at':'created_at';
+    const {data,error}=await db.from(table).select('*').eq('user_id',user.id).order(order,{ascending:false});
+    if(error){console.error('Kumo '+table+' read failed:',error.message);return [];}
+    return data||[];
+  }
+  async function renderCloudPage(kind){
+    const user=await getUser();
+    if(!user){
+      app.innerHTML='<div class="row-h" style="margin-top:24px"><h2>'+(kind==='history'?'Watch history':'My list')+'</h2></div><p class="empty">Sign in with Google to save and view your '+(kind==='history'?'watch history':'favourites')+' across devices.</p><button class="btn" id="cloud-login">Sign in</button>';
+      const login=document.getElementById('cloud-login');
+      if(login)login.onclick=()=>window.kumoOpenAccount&&window.kumoOpenAccount();
+      return;
+    }
+    app.innerHTML='<p class="empty">Loading your '+(kind==='history'?'watch history':'favourites')+'…</p>';
+    const rows=await getRows(kind==='history'?'watch_history':'favourites',user);
+    const cards=rows.map(r=>{
+      const t=titleFor(r.anime_id);
+      if(!t)return '';
+      return kind==='history'?card(t,r.episode_number,r.progress_seconds):card(t);
+    }).filter(Boolean);
+    pg(kind==='history'?'Watch history':'My list',cards,
+      kind==='history'?'No episodes watched yet. Start an episode and your progress will appear here.':'Your list is empty. Open an anime and add it to your list.');
+    if(kind==='history'&&rows.length){
+      const note=document.createElement('p');note.className='note';
+      note.textContent='One entry per anime, showing the most recently watched episode. Progress syncs while signed in.';
+      app.appendChild(note);
+    }
+  }
+  async function setFavouriteButton(button){
+    const user=await getUser();
+    if(!user){button.textContent='+ My list';return;}
+    const id=Number((location.hash.slice(1)||'').split('-')[1]);
+    const t=(window.T||[])[id];
+    if(!t||!t.anilistId){button.textContent='+ My list';return;}
+    const {data,error}=await db.from('favourites').select('id').eq('user_id',user.id).eq('anime_id',t.anilistId).maybeSingle();
+    if(error){console.error('Kumo favourite lookup failed:',error.message);button.textContent='+ My list';return;}
+    button.dataset.animeId=String(t.anilistId);
+    button.textContent=data?'✓ In my list':'+ My list';
+  }
+  // Capture the dynamic My List button before the original local-only click handler.
+  document.addEventListener('click',async function(event){
+    const button=event.target.closest('.title button');
+    if(!button||!app.contains(button))return;
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+    button.disabled=true;
+    try{
+      const user=await getUser();
+      if(!user){alert('Please sign in with Google first.');return;}
+      const id=Number((location.hash.slice(1)||'').split('-')[1]);
+      const t=(window.T||[])[id];
+      if(!t||!t.anilistId){alert('Anime information is not ready yet. Please try again.');return;}
+      const {data,error}=await db.from('favourites').select('id').eq('user_id',user.id).eq('anime_id',t.anilistId).maybeSingle();
+      if(error)throw error;
+      if(data){
+        const result=await db.from('favourites').delete().eq('user_id',user.id).eq('anime_id',t.anilistId);
+        if(result.error)throw result.error;
+        button.textContent='+ My list';
+      }else{
+        const result=await db.from('favourites').upsert({
+          user_id:user.id,anime_id:t.anilistId,anime_title:t.n,anime_cover:t.cover||null
+        },{onConflict:'user_id,anime_id'});
+        if(result.error)throw result.error;
+        button.textContent='✓ In my list';
+      }
+    }catch(error){
+      console.error('Kumo favourite save failed:',error);
+      alert('Could not save your favourite: '+(error.message||'Unknown error'));
+    }finally{button.disabled=false;}
+  },true);
+  function refreshPage(){
+    const route=(location.hash.slice(1)||'home').split('-')[0];
+    if(route==='history'||route==='mylist')renderCloudPage(route);
+    else if(route==='title'){
+      const button=app.querySelector('.title button');
+      if(button)setFavouriteButton(button);
+    }
+  }
+  window.addEventListener('hashchange',()=>setTimeout(refreshPage,0));
+  db.auth.getSession().then(()=>refreshPage());
+  db.auth.onAuthStateChange((event)=>{
+    if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(refreshPage,150);
+  });
+  window.kumoRefreshCloudPage=refreshPage;
+})();
+</script>
+
+</body>
+</html>
